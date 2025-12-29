@@ -61,9 +61,9 @@ npm start
 
 ## JWT (JSON Web Token)
 ```bash
-    - ប្រើសម្រាប់បញ្ជាក់អត្តសញ្ញាណអ្នកប្រើប្រាស់ពេលហៅ API
-    - Password Hashing ប្រើ Bcrypt ដើម្បី Hash លេខសម្ងាត់មុនរក្សាទុកក្នុង Database
-    - CORS កំណត់អោយតែ Frontend ដែលអនុញ្ញាតប៉ុណ្ណោះអាច Access API បាន
+- ប្រើសម្រាប់បញ្ជាក់អត្តសញ្ញាណអ្នកប្រើប្រាស់ពេលហៅ API
+- Password Hashing ប្រើ Bcrypt ដើម្បី Hashលេខសម្ងាត់មុនរក្សាទុកក្នុង Database
+- CORS កំណត់អោយតែ Frontend ដែលអនុញ្ញាតប៉ុណ្ណោះអាច Access API បាន
 
 ## API Endpoints
 
@@ -78,4 +78,3 @@ Endpoint
     - /api/auth/login
     - /api/chat/messages
     - /api/chat/send
-    ```
