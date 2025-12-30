@@ -7,8 +7,13 @@ class ChatService {
     return await message.save();
   }
 
-  async getMessagesByRoom(room: string): Promise<IMessageDocument[]> {
-    return await Message.find({ room }).sort({ timestamp: 1 }).exec();
+  async getMessagesByRoom(room: string, username: string): Promise<IMessageDocument[]> {
+    // ប្រសិនបើមាន username គឺទាញយកតែសាររបស់ User នោះ
+    const query: any = { room };
+    if (username) {
+      query.sender = username;
+    }
+    return await Message.find(query).sort({ timestamp: 1 }).exec();
   }
 }
 
