@@ -1,148 +1,3 @@
-// // import http from 'http';
-// // import app from './app';
-// // import { Server } from 'socket.io';
-// // import connectDB from './config/db';
-// // import chatService from './services/chat.service';
-
-// // const server = http.createServer(app);
-// // const io = new Server(server, {
-// //   cors: { origin: "http://localhost:4200" }
-// // });
-
-// // connectDB();
-
-// // // ក្នុង file app.ts ឬ server.ts របស់ backend
-// // io.on('connection', (socket) => {
-// //   console.log('User connected:', socket.id);
-
-// //   socket.on('join_room', (room) => {
-// //     socket.join(room);
-// //     console.log(`User joined room: ${room}`);
-// //   });
-
-// //   socket.on('send_message', (data) => {
-// //     // បញ្ជូនសារទៅកាន់អ្នកគ្រប់គ្នាក្នុង Room នោះ (រួមទាំងអ្នកផ្ញើខ្លួនឯង)
-// //     io.to(data.room).emit('receive_message', data);
-// //   });
-// // });
-
-// // server.listen(3000, () => console.log('🚀 Server running on port https://localhost:3000'));
-
-
-
-
-
-// // import 'dotenv/config';
-// // import http from 'http';
-// // import { Server } from 'socket.io';
-// // import jwt from 'jsonwebtoken';
-// // import app from './app';
-// // import connectDB from './config/db';
-
-// // const server = http.createServer(app);
-// // const io = new Server(server, {
-// //   cors: { origin: process.env.CLIENT_URL || "http://localhost:4200" }
-// // });
-
-// // // Middleware សម្រាប់ឆែក Token លើ Socket
-// // io.use((socket, next) => {
-// //   const token = socket.handshake.auth.token;
-// //   if (!token) return next(new Error("Authentication error"));
-
-// //   jwt.verify(token, process.env.JWT_SECRET!, (err: any, decoded: any) => {
-// //     if (err) return next(new Error("Authentication error"));
-// //     (socket as any).userId = decoded.userId;
-// //     next();
-// //   });
-// // });
-
-// // io.on('connection', (socket) => {
-// //   console.log('User connected:', socket.id);
-
-// //   socket.on('join_room', (room) => {
-// //     socket.join(room);
-// //     console.log(`User ${(socket as any).userId} joined room: ${room}`);
-// //   });
-
-// //   socket.on('send_message', (data) => {
-// //     // បន្ថែម UserId ទៅក្នុងសារដើម្បីដឹងថាអ្នកណាជាអ្នកផ្ញើពិតប្រាកដ
-// //     const messagePayload = {
-// //       ...data,
-// //       senderId: (socket as any).userId,
-// //       createdAt: new Date()
-// //     };
-// //     io.to(data.room).emit('receive_message', messagePayload);
-// //   });
-// // });
-
-// // const PORT = process.env.PORT || 3000;
-// // connectDB().then(() => {
-// //   server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-// // });
-
-
-
-// import 'dotenv/config';
-// import http from 'http';
-// import { Server } from 'socket.io';
-// import jwt from 'jsonwebtoken';
-// import app from './app';
-// import connectDB from './config/db';
-// // ១. នាំចូល chatService ដើម្បីប្រើប្រាស់មុខងារ saveMessage
-// import chatService from './services/chat.service'; 
-
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: { origin: process.env.CLIENT_URL || "http://localhost:4200" }
-// });
-
-// // Middleware សម្រាប់ឆែក Token លើ Socket
-// io.use((socket, next) => {
-//   const token = socket.handshake.auth.token;
-//   if (!token) return next(new Error("Authentication error"));
-
-//   jwt.verify(token, process.env.JWT_SECRET!, (err: any, decoded: any) => {
-//     if (err) return next(new Error("Authentication error"));
-//     (socket as any).userId = decoded.userId;
-//     next();
-//   });
-// });
-
-// io.on('connection', (socket) => {
-//   console.log('User connected:', socket.id);
-
-//   socket.on('join_room', (room) => {
-//     socket.join(room);
-//     console.log(`User ${(socket as any).userId} joined room: ${room}`);
-//   });
-
-//   // ២. បន្ថែម async ដើម្បីអាចប្រើ await ក្នុងការ save ទិន្នន័យ
-//   socket.on('send_message', async (data) => {
-//     try {
-//       const messagePayload = {
-//         ...data,
-//         senderId: (socket as any).userId,
-//         // ធានាថា field name ត្រូវគ្នាជាមួយ IMessage interface (sender, content, room, timestamp)
-//         timestamp: new Date() 
-//       };
-
-//       // 🔥 ជំហានសំខាន់បំផុត៖ រក្សាទុកសារទៅក្នុង MongoDB
-//       // បើគ្មានបន្ទាត់នេះទេ ពេល Refresh នឹងបាត់សារជានិច្ច
-//       await chatService.saveMessage(messagePayload);
-
-//       // ៣. បញ្ជូនសារទៅកាន់អ្នកគ្រប់គ្នានៅក្នុង Room បន្ទាប់ពី Save ជោគជ័យ
-//       io.to(data.room).emit('receive_message', messagePayload);
-
-//     } catch (error) {
-//       console.error('Error saving message to DB:', error);
-//     }
-//   });
-// });
-
-// const PORT = process.env.PORT || 3000;
-// connectDB().then(() => {
-//   server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-// });
 
 import 'dotenv/config';
 import http from 'http';
@@ -155,7 +10,6 @@ import TelegramBot from 'node-telegram-bot-api';
 
 const server = http.createServer(app);
 
-// រៀបចំ Socket.io ជាមួយ CORS ចេញពី .env
 const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:4200",
@@ -164,7 +18,6 @@ const io = new Server(server, {
   }
 });
 
-// --- ១. រៀបចំ TELEGRAM BOT CONFIGURATION ---
 const token = process.env.TELEGRAM_BOT_TOKEN as string;
 if (!token) {
   console.error("❌ ERROR: TELEGRAM_BOT_TOKEN is missing in .env");
@@ -172,21 +25,18 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
-// ស្ដាប់នៅពេល User ចុច /start ក្នុង Telegram App
 bot.onText(/\/start/, async (msg: TelegramBot.Message) => {
   const chatId = msg.chat.id;
   const user = msg.from;
 
   console.log("🚀 Telegram Auth Received from:", user?.first_name);
 
-  // ១. បង្កើត Payload សម្រាប់ JWT
   const payload = {
     userId: user?.id,
     username: user?.username,
     first_name: user?.first_name
   };
 
-  // ២. បង្កើត authToken ជាមួយការការពារ Error TypeScript
   const authToken = jwt.sign(
     payload,
     process.env.JWT_SECRET as string,
@@ -195,11 +45,9 @@ bot.onText(/\/start/, async (msg: TelegramBot.Message) => {
     }
   );
 
-  // ៣. ពិនិត្យមើលស្ថានភាព Socket មុននឹងផ្ញើ (Debugging)
   const connectedCount = io.sockets.sockets.size;
   console.log(`📊 ចំនួនឧបករណ៍ដែលកំពុងភ្ជាប់ Socket ឥឡូវនេះ: ${connectedCount}`);
 
-  // ៤. ផ្ញើសញ្ញាទៅ Frontend (Broadcast ទៅគ្រប់ Tab ដែលបើក)
   io.emit('telegram_auth_success', {
     token: authToken,
     user: payload
@@ -207,73 +55,137 @@ bot.onText(/\/start/, async (msg: TelegramBot.Message) => {
 
   console.log("📡 បានផ្ញើសញ្ញា 'telegram_auth_success' ទៅកាន់ Frontend រួចរាល់។");
 
-  // ៥. ផ្ញើសារត្រឡប់ទៅ Telegram វិញ
   bot.sendMessage(chatId, `🎉 សួស្តី ${user?.first_name}! អ្នកបានចូលប្រើប្រាស់ជោគជ័យ។\n\nសូមត្រឡប់ទៅពិនិត្យមើល Browser របស់អ្នកដើម្បីចាប់ផ្ដើមឆាត។`);
 });
 
-// --- ២. SOCKET.IO MIDDLEWARE (បានកែសម្រួលដើម្បីឱ្យ Login ដើរ) ---
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
 
-  // ប្រសិនបើគ្មាន Token (ករណីទើបបើកទំព័រ Login) យើងអនុញ្ញាតឱ្យភ្ជាប់សិន ដើម្បីចាំស្ដាប់សញ្ញាពី Bot
   if (!token) {
     console.log("⚠️ មិនទាន់មាន Token ទេ (Initial Connection) - អនុញ្ញាតឱ្យភ្ជាប់សិនសម្រាប់ការ Login");
     return next();
   }
 
-  // ប្រសិនបើមាន Token យើងនឹងធ្វើការ Verify ដូចធម្មតា
   jwt.verify(token, process.env.JWT_SECRET!, (err: any, decoded: any) => {
     if (err) {
       console.error("❌ JWT Verify Error:", err.message);
-      // ទោះ Error ក៏ឱ្យវាភ្ជាប់ដែរ ដើម្បីកុំឱ្យគាំងទំព័រ Login ប៉ុន្តែ (socket as any).userId នឹងមិនមានតម្លៃឡើយ
-      return next(); 
+      return next();
     }
     (socket as any).userId = decoded.userId;
     next();
   });
 });
 
-// --- ៣. SOCKET.IO CONNECTION (សម្រាប់ CHAT ROOM) ---
+let waitingPlayer: { socketId: any; gameId: any; user: any } | null = null;
 io.on('connection', (socket) => {
-  console.log('👤 User connected to socket:', socket.id);
+  console.log('👤 User connected:', socket.id);
 
   socket.on('join_room', (room) => {
-    // ឆែកមើលថា តើមាន UserId ដែរឬទេ (ការពារការ Chat ដោយគ្មាន Token)
-    if (!(socket as any).userId) {
-      console.warn("🚫 មិនអាច Join Room បានទេ: គ្មានការបញ្ជាក់អត្តសញ្ញាណត្រឹមត្រូវ");
-      return;
-    }
+    if (!(socket as any).userId) return;
     socket.join(room);
-    console.log(`🏠 User ${(socket as any).userId} joined room: ${room}`);
+    console.log(`🏠 User ${(socket as any).userId} joined chat: ${room}`);
   });
 
   socket.on('send_message', async (data) => {
     try {
-      if (!(socket as any).userId) throw new Error("Unauthorized user");
-
-      const messagePayload = {
-        ...data,
-        senderId: (socket as any).userId,
-        timestamp: new Date()
-      };
-
-      // រក្សាទុកក្នុង Database
+      if (!(socket as any).userId) throw new Error("Unauthorized");
+      const messagePayload = { ...data, senderId: (socket as any).userId, timestamp: new Date() };
       await chatService.saveMessage(messagePayload);
 
-      // បញ្ជូនទៅកាន់អ្នកក្នុង Room
       io.to(data.room).emit('receive_message', messagePayload);
-
     } catch (error) {
-      console.error('❌ Error saving/sending message:', error);
+      console.error('❌ Chat Error:', error);
     }
   });
 
+  socket.on('find_match', () => {
+    // ១. ឆែកមើលថា តើមានអ្នកលេងកំពុងរង់ចាំ ហើយមិនមែនជាខ្លួនឯងឬទេ?
+    if (waitingPlayer && waitingPlayer.socketId !== socket.id) {
+      const gameId = waitingPlayer.gameId;
+      const roomName = `chess_${gameId}`;
+
+      // ឱ្យអ្នកលេងទី២ ចូលក្នុង Room ជាមួយអ្នកលេងទី១
+      socket.join(roomName);
+
+      // ២. បញ្ជូនសញ្ញាទៅអ្នកទី១ (ស)
+      io.to(waitingPlayer.socketId).emit('match_found', {
+        gameId: gameId,
+        side: 'w'
+      });
+
+      // ៣. បញ្ជូនសញ្ញាទៅអ្នកទី២ (ខ្មៅ)
+      socket.emit('match_found', {
+        gameId: gameId,
+        side: 'b'
+      });
+
+      console.log(`🎮 Match Found: Room ${gameId}`);
+      waitingPlayer = null; // សម្អាតអ្នកចាំ ដើម្បីទទួលគូថ្មី
+    }
+    else {
+      // បើគ្មានអ្នកចាំ ឬជាមនុស្សដដែលចុចស្ទួន
+      const newGameId = Math.random().toString(36).substring(2, 9);
+
+      waitingPlayer = {
+        socketId: socket.id,
+        gameId: newGameId,
+        user: (socket as any).userId // ប្រាកដថាមានព័ត៌មាន user
+      };
+
+      socket.join(`chess_${newGameId}`);
+      socket.emit('waiting_for_opponent');
+      console.log(`⏳ User ${socket.id} is waiting in room ${newGameId}`);
+    }
+  });
+
+  socket.on('join_chess_game', (gameId) => {
+    socket.join(`chess_${gameId}`);
+    socket.to(`chess_${gameId}`).emit('player_joined');
+  });
+
+  socket.on('make_chess_move', (data) => {
+    // ត្រូវប្រើ socket.to(...) ដើម្បីផ្ញើទៅកាន់តែមនុស្សក្នុង Room នោះប៉ុណ្ណោះ
+    socket.to(`chess_${data.gameId}`).emit('opponent_moved', {
+      from: data.from,
+      to: data.to,
+      promotion: data.promotion
+    });
+  });
+
+  const handleLeaveGame = () => {
+    // រកមើលគ្រប់ Room ដែល Socket នេះកំពុងនៅ (ក្រៅពី Room ផ្ទាល់ខ្លួនរបស់វា)
+    const rooms = Array.from(socket.rooms);
+    rooms.forEach(room => {
+      if (room.startsWith('chess_')) {
+        // ១. ប្រាប់អ្នកនៅក្នុង Room នោះថា គូប្រកួតបានចាកចេញហើយ
+        socket.to(room).emit('opponent_left');
+
+        // ២. ឱ្យគ្រប់គ្នាដែលនៅសល់ (បើមាន) ចាកចេញពី Room នេះ
+        // នេះនឹងជួយ Clear បន្ទប់ពី Memory របស់ Server
+        io.in(room).socketsLeave(room);
+
+        console.log(`🧹 Room ${room} ត្រូវបានសម្អាតដោយសារអ្នកលេងចាកចេញ`);
+      }
+    });
+
+    // ៣. បើ User ហ្នឹងគឺជាអ្នកដែលកំពុងចាំ (waitingPlayer) ត្រូវលុបគាត់ចេញដែរ
+    if (waitingPlayer && waitingPlayer.socketId === socket.id) {
+      waitingPlayer = null;
+      console.log('⏳ Waiting player បានចាកចេញ - សម្អាត queue');
+    }
+  };
+
+  // ស្ដាប់នៅពេល User ចុចចាកចេញដោយផ្ទាល់ (ឧទាហរណ៍៖ ប៊ូតុង Back)
+  socket.on('leave_game', handleLeaveGame);
+
+  // ស្ដាប់នៅពេល User បិទ Browser ឬដាច់ Internet
   socket.on('disconnect', () => {
-    console.log('🔌 User disconnected');
+    console.log('👤 User disconnected:', socket.id);
+    handleLeaveGame();
   });
 });
 
-// --- ៤. START SERVER ---
+
 const PORT = process.env.PORT || 3000;
 connectDB().then(() => {
   server.listen(PORT, () => {

@@ -5,16 +5,11 @@ import Message from 'src/models/Message';
 export const getHistory = async (req: Request, res: Response) => {
   try {
     const { room } = req.params;
-    const { username, since } = req.query;
+    const { since } = req.query;
 
     const query: any = { room };
-    
-    if (username) {
-      query.sender = username;
-    }
 
-    // ប្រសិនបើមានបញ្ជូនម៉ោង Login មក គឺទាញតែសារក្រោយម៉ោងនោះ
-    if (since) {
+    if (since && since !== '' && since !== 'null') {
       query.timestamp = { $gte: new Date(since as string) };
     }
 
