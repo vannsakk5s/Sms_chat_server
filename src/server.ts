@@ -77,6 +77,7 @@ io.use((socket, next) => {
 });
 
 let waitingPlayer: { socketId: any; gameId: any; user: any } | null = null;
+
 io.on('connection', (socket) => {
   console.log('👤 User connected:', socket.id);
 
@@ -183,6 +184,75 @@ io.on('connection', (socket) => {
     console.log('👤 User disconnected:', socket.id);
     handleLeaveGame();
   });
+});
+
+
+//==================================//
+//           TIC TAC TOE            //
+//==================================//
+
+let waitingTicTacToePlayer: { socketId: string; gameId: string; user: any } | null = null;
+
+io.on('connection', (socket) => {
+  // ... (Event ផ្សេងៗរបស់អ្នកនៅដដែល)
+
+  // ១. រកគូ Tic-Tac-Toe
+  socket.on('find_tictactoe_match', () => {
+    // ឆែកមើលក្រែងលោអ្នកនេះជាអ្នកកំពុងចាំស្រាប់ (កុំឱ្យលេងខ្លួនឯង)
+    if (waitingTicTacToePlayer && waitingTicTacToePlayer.socketId !== socket.id) {
+      const gameId = waitingTicTacToePlayer.gameId;
+      const roomName = `tictactoe_${gameId}`; // ដាក់ឈ្មោះ Room ឱ្យខុសពី Chess
+
+      // ឱ្យអ្នកលេងទី២ ចូល Room
+      socket.join(roomName);
+
+      // ជូនដំណឹងអ្នកទី១ (Player X)
+      io.to(waitingTicTacToePlayer.socketId).emit('tictactoe_match_found', {
+        gameId: gameId,
+        side: 'X'
+      });
+
+      // ជូនដំណឹងអ្នកទី២ (Player O)
+      socket.emit('tictactoe_match_found', {
+        gameId: gameId,
+        side: 'O'
+      });
+
+      console.log(`❌⭕ Tic-Tac-Toe Match Found: Room ${gameId}`);
+      waitingTicTacToePlayer = null; // សម្អាតអ្នកចាំ
+    } else {
+      // បើគ្មានអ្នកចាំ
+      const newGameId = Math.random().toString(36).substring(2, 9);
+      
+      waitingTicTacToePlayer = {
+        socketId: socket.id,
+        gameId: newGameId,
+        user: (socket as any).userId
+      };
+
+      socket.join(`tictactoe_${newGameId}`);
+      console.log(`⏳ User ${socket.id} waiting for Tic-Tac-Toe in room ${newGameId}`);
+    }
+  });
+
+  // ២. ទទួលការដើរ (Move)
+  socket.on('tictactoe_move', (data) => {
+    // ផ្ញើទៅតែគូប្រកួតក្នុង Room នោះ (ប្រើ broadcast តាមរយៈ to())
+    socket.to(`tictactoe_${data.gameId}`).emit('tictactoe_opponent_move', {
+      index: data.index,
+      player: data.player
+    });
+  });
+
+  // ៣. Cancel Search សម្រាប់ Tic-Tac-Toe
+  socket.on('cancel_tictactoe_search', () => {
+    if (waitingTicTacToePlayer && waitingTicTacToePlayer.socketId === socket.id) {
+      waitingTicTacToePlayer = null;
+      console.log('🚫 Tic-Tac-Toe search canceled');
+    }
+  });
+  
+  // Note: ចំណែកឯ disconnect logic អ្នកអាចបន្ថែមការ check សម្រាប់ room 'tictactoe_' ដូច chess ដែរ
 });
 
 
