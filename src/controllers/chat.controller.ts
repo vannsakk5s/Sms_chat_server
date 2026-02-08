@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import chatService from '../services/chat.service';
 import Message from 'src/models/Message';
 
 export const getHistory = async (req: Request, res: Response) => {

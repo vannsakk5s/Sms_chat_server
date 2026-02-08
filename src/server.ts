@@ -100,37 +100,32 @@ io.on('connection', (socket) => {
   });
 
   socket.on('find_match', () => {
-    // ១. ឆែកមើលថា តើមានអ្នកលេងកំពុងរង់ចាំ ហើយមិនមែនជាខ្លួនឯងឬទេ?
     if (waitingPlayer && waitingPlayer.socketId !== socket.id) {
       const gameId = waitingPlayer.gameId;
       const roomName = `chess_${gameId}`;
-
-      // ឱ្យអ្នកលេងទី២ ចូលក្នុង Room ជាមួយអ្នកលេងទី១
       socket.join(roomName);
-
-      // ២. បញ្ជូនសញ្ញាទៅអ្នកទី១ (ស)
       io.to(waitingPlayer.socketId).emit('match_found', {
         gameId: gameId,
         side: 'w'
       });
 
-      // ៣. បញ្ជូនសញ្ញាទៅអ្នកទី២ (ខ្មៅ)
+      
       socket.emit('match_found', {
         gameId: gameId,
         side: 'b'
       });
 
       console.log(`🎮 Match Found: Room ${gameId}`);
-      waitingPlayer = null; // សម្អាតអ្នកចាំ ដើម្បីទទួលគូថ្មី
+      waitingPlayer = null;
     }
     else {
-      // បើគ្មានអ្នកចាំ ឬជាមនុស្សដដែលចុចស្ទួន
+ 
       const newGameId = Math.random().toString(36).substring(2, 9);
 
       waitingPlayer = {
         socketId: socket.id,
         gameId: newGameId,
-        user: (socket as any).userId // ប្រាកដថាមានព័ត៌មាន user
+        user: (socket as any).userId 
       };
 
       socket.join(`chess_${newGameId}`);
@@ -145,7 +140,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('make_chess_move', (data) => {
-    // ត្រូវប្រើ socket.to(...) ដើម្បីផ្ញើទៅកាន់តែមនុស្សក្នុង Room នោះប៉ុណ្ណោះ
     socket.to(`chess_${data.gameId}`).emit('opponent_moved', {
       from: data.from,
       to: data.to,
@@ -154,22 +148,16 @@ io.on('connection', (socket) => {
   });
 
   const handleLeaveGame = () => {
-    // រកមើលគ្រប់ Room ដែល Socket នេះកំពុងនៅ (ក្រៅពី Room ផ្ទាល់ខ្លួនរបស់វា)
     const rooms = Array.from(socket.rooms);
     rooms.forEach(room => {
       if (room.startsWith('chess_')) {
-        // ១. ប្រាប់អ្នកនៅក្នុង Room នោះថា គូប្រកួតបានចាកចេញហើយ
         socket.to(room).emit('opponent_left');
-
-        // ២. ឱ្យគ្រប់គ្នាដែលនៅសល់ (បើមាន) ចាកចេញពី Room នេះ
-        // នេះនឹងជួយ Clear បន្ទប់ពី Memory របស់ Server
         io.in(room).socketsLeave(room);
 
         console.log(`🧹 Room ${room} ត្រូវបានសម្អាតដោយសារអ្នកលេងចាកចេញ`);
       }
     });
 
-    // ៣. បើ User ហ្នឹងគឺជាអ្នកដែលកំពុងចាំ (waitingPlayer) ត្រូវលុបគាត់ចេញដែរ
     if (waitingPlayer && waitingPlayer.socketId === socket.id) {
       waitingPlayer = null;
       console.log('⏳ Waiting player បានចាកចេញ - សម្អាត queue');
@@ -177,28 +165,23 @@ io.on('connection', (socket) => {
   };
 
   socket.on('send_chat_message', (data) => {
-    // ត្រូវថែម chess_ នៅពីមុខ gameId
     socket.to(`chess_${data.gameId}`).emit('receive_chat_message', {
       message: data.message
     });
   });
 
   socket.on('request_rematch', (data) => {
-    // ផ្ញើទៅកាន់តែគូប្រកួត (កុំផ្ញើមកខ្លួនឯង)
     socket.to(`chess_${data.gameId}`).emit('rematch_requested');
   });
 
   socket.on('respond_rematch', (data) => {
-    // ផ្ញើលទ្ធផលទៅកាន់ទាំងពីរនាក់ក្នុង Room
     io.in(`chess_${data.gameId}`).emit('rematch_result', {
       accept: data.accept
     });
   });
 
-  // ស្ដាប់នៅពេល User ចុចចាកចេញដោយផ្ទាល់ (ឧទាហរណ៍៖ ប៊ូតុង Back)
   socket.on('leave_game', handleLeaveGame);
 
-  // ស្ដាប់នៅពេល User បិទ Browser ឬដាច់ Internet
   socket.on('disconnect', () => {
     console.log('👤 User disconnected:', socket.id);
     handleLeaveGame();
@@ -213,34 +196,27 @@ io.on('connection', (socket) => {
 let waitingTicTacToePlayer: { socketId: string; gameId: string; user: any } | null = null;
 
 io.on('connection', (socket) => {
-  // ... (Event ផ្សេងៗរបស់អ្នកនៅដដែល)
 
-  // ១. រកគូ Tic-Tac-Toe
   socket.on('find_tictactoe_match', () => {
-    // ឆែកមើលក្រែងលោអ្នកនេះជាអ្នកកំពុងចាំស្រាប់ (កុំឱ្យលេងខ្លួនឯង)
     if (waitingTicTacToePlayer && waitingTicTacToePlayer.socketId !== socket.id) {
       const gameId = waitingTicTacToePlayer.gameId;
-      const roomName = `tictactoe_${gameId}`; // ដាក់ឈ្មោះ Room ឱ្យខុសពី Chess
+      const roomName = `tictactoe_${gameId}`; 
 
-      // ឱ្យអ្នកលេងទី២ ចូល Room
       socket.join(roomName);
 
-      // ជូនដំណឹងអ្នកទី១ (Player X)
       io.to(waitingTicTacToePlayer.socketId).emit('tictactoe_match_found', {
         gameId: gameId,
         side: 'X'
       });
 
-      // ជូនដំណឹងអ្នកទី២ (Player O)
       socket.emit('tictactoe_match_found', {
         gameId: gameId,
         side: 'O'
       });
 
       console.log(`❌⭕ Tic-Tac-Toe Match Found: Room ${gameId}`);
-      waitingTicTacToePlayer = null; // សម្អាតអ្នកចាំ
+      waitingTicTacToePlayer = null;
     } else {
-      // បើគ្មានអ្នកចាំ
       const newGameId = Math.random().toString(36).substring(2, 9);
 
       waitingTicTacToePlayer = {
@@ -254,16 +230,13 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ២. ទទួលការដើរ (Move)
   socket.on('tictactoe_move', (data) => {
-    // ផ្ញើទៅតែគូប្រកួតក្នុង Room នោះ (ប្រើ broadcast តាមរយៈ to())
     socket.to(`tictactoe_${data.gameId}`).emit('tictactoe_opponent_move', {
       index: data.index,
       player: data.player
     });
   });
 
-  // ៣. Cancel Search សម្រាប់ Tic-Tac-Toe
   socket.on('cancel_tictactoe_search', () => {
     if (waitingTicTacToePlayer && waitingTicTacToePlayer.socketId === socket.id) {
       waitingTicTacToePlayer = null;
@@ -271,7 +244,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Note: ចំណែកឯ disconnect logic អ្នកអាចបន្ថែមការ check សម្រាប់ room 'tictactoe_' ដូច chess ដែរ
 });
 
 
