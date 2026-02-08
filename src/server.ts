@@ -176,6 +176,25 @@ io.on('connection', (socket) => {
     }
   };
 
+  socket.on('send_chat_message', (data) => {
+    // ត្រូវថែម chess_ នៅពីមុខ gameId
+    socket.to(`chess_${data.gameId}`).emit('receive_chat_message', {
+      message: data.message
+    });
+  });
+
+  socket.on('request_rematch', (data) => {
+    // ផ្ញើទៅកាន់តែគូប្រកួត (កុំផ្ញើមកខ្លួនឯង)
+    socket.to(`chess_${data.gameId}`).emit('rematch_requested');
+  });
+
+  socket.on('respond_rematch', (data) => {
+    // ផ្ញើលទ្ធផលទៅកាន់ទាំងពីរនាក់ក្នុង Room
+    io.in(`chess_${data.gameId}`).emit('rematch_result', {
+      accept: data.accept
+    });
+  });
+
   // ស្ដាប់នៅពេល User ចុចចាកចេញដោយផ្ទាល់ (ឧទាហរណ៍៖ ប៊ូតុង Back)
   socket.on('leave_game', handleLeaveGame);
 
@@ -223,7 +242,7 @@ io.on('connection', (socket) => {
     } else {
       // បើគ្មានអ្នកចាំ
       const newGameId = Math.random().toString(36).substring(2, 9);
-      
+
       waitingTicTacToePlayer = {
         socketId: socket.id,
         gameId: newGameId,
@@ -251,7 +270,7 @@ io.on('connection', (socket) => {
       console.log('🚫 Tic-Tac-Toe search canceled');
     }
   });
-  
+
   // Note: ចំណែកឯ disconnect logic អ្នកអាចបន្ថែមការ check សម្រាប់ room 'tictactoe_' ដូច chess ដែរ
 });
 
