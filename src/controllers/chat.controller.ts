@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Message from 'src/models/Message';
+import Message from '../models/Message';
 
 export const getHistory = async (req: Request, res: Response) => {
   try {
